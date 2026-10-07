@@ -175,67 +175,13 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5):
         "tempo_teste_desvio": np.std(tempos_teste)
     }
 
-def validacao_cruzada_regressao(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5):
-    total_amostras = len(X)
-    indices_embaralhados = np.random.permutation(total_amostras)
-    fatias = np.array_split(indices_embaralhados, k_folds)
-
-    notas_mae = []
-    notas_r2 = []
-    tempos_treino = []
-    tempos_teste = []
-
-    # Número de atributos (colunas) para calcular o R2 Ajustado
-    # Se X for um vetor 1D, tem 1 atributo. Se for matriz, pega o número de colunas.
-    n_atributos = 1 if X.ndim == 1 else X.shape[1]
-
-    for i in range(k_folds):
-        indices_teste = fatias[i]
-        indices_treino = []
-        for j in range(k_folds):
-            if j != i:
-                indices_treino.extend(fatias[j])
-
-        X_treino, y_treino = X[indices_treino], y[indices_treino]
-        X_teste, y_teste = X[indices_teste], y[indices_teste]
-
-        # ATENÇÃO AQUI: task mudou para "regression"
-        modelo = KNN(k=k_vizinhos, task="regression", metric=metrica)
-
-        inicio_treino = time.time()
-        modelo.fit(X_treino, y_treino)
-        fim_treino = time.time()
-
-        inicio_teste = time.time()
-        previsoes = modelo.predict(X_teste)
-        fim_teste = time.time()
-
-        # ATENÇÃO AQUI: Chama as métricas de regressão
-        mae, r2, r2_ajustado = calcular_metricas_regressao(y_teste, previsoes, n_atributos)
-
-        notas_mae.append(mae)
-        notas_r2.append(r2)
-        tempos_treino.append(fim_treino - inicio_treino)
-        tempos_teste.append(fim_teste - inicio_teste)
-
-    return {
-        "mae_medio": np.mean(notas_mae),
-        "mae_desvio": np.std(notas_mae),
-        "r2_medio": np.mean(notas_r2),
-        "r2_desvio": np.std(notas_r2),
-        "tempo_treino_medio": np.mean(tempos_treino),
-        "tempo_treino_desvio": np.std(tempos_treino),
-        "tempo_teste_medio": np.mean(tempos_teste),
-        "tempo_teste_desvio": np.std(tempos_teste)
-    }
-
-# Dados de treino
+#= dados treino
 X_train = np.array([[3, 2], [4, 5], [1, 1], [2, 2], [5, 4]])
 y_train = np.array([1, 1, 0, 0, 1])
 
-# Dados de teste inventados
+# dados inventei
 X_test = np.array([[3, 3], [1, 2], [5, 5]])
-y_test = np.array([1, 0, 1]) # O gabarito real
+y_test = np.array([1, 0, 1]) # 0 = negativo, 1 = positivo
 
 print("euclidiana")
 modelo_euclidiano = KNN(k=3, task="classification", metric="euclidean")
