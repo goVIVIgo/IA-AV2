@@ -28,10 +28,10 @@ Objetivos: comparar o desempenho preditivo e computacional de algoritmos em tare
 - eles são usados para calcular o **MAE (ERRO MEDIO ABSOLUTO)** mede as distancias absolutas entre os valores previstos e os reais, e o **r2(coefieciente de determinação)** indica o quanto o modelo conseguiu entender a logica dos dados, vai de **0 a 1, 1 eh otimo 0 eh uma merda**
 
 # KNN - Validação Cruzada (K-Fold)
-- Classificação (Euclidiana): acurácia = ~95.4% | f1_score = ~95.2% |treino medio = ~0.000002s | teste medio = ~6.5s
-- Classificação (Manhattan): acurácia = ~94.3% | f1_score = ~93.9% |treino medio = ~0.000001s | teste medio = ~6.0s
-- Regressão (Euclidiana): MAE =  1074.7 | R² =  0.149 | treino medio = 0.0000005s | teste medio = ~1.6s
-- Regressão (Manhattan): MAE = 1066.8 | R² =  0.154 | treino medio = 0.0000005s | teste medio = ~1.5s
+- **Classificação (Euclidiana):** acurácia = ~95.4% | f1_score = ~95.2% |treino medio = ~0.000002s | teste medio = ~6.5s
+- **Classificação (Manhattan):** acurácia = ~94.3% | f1_score = ~93.9% |treino medio = ~0.000001s | teste medio = ~6.0s
+- **Regressão (Euclidiana):** MAE =  1074.7 | R² =  0.149 | treino medio = 0.0000005s | teste medio = ~1.6s
+- **Regressão (Manhattan):** MAE = 1066.8 | R² =  0.154 | treino medio = 0.0000005s | teste medio = ~1.5s
 
 # Conclusões
 - **CLASSIFICAÇÃO**: teve resultados mto bons, 95% em praticamente tudo, foi bem bom
