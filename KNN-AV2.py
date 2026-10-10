@@ -55,7 +55,7 @@ class KNN:
             return np.mean(k_nearest_labels)
 
 
-#calcula as metricas
+#calcula as metricas da classificação
 def calcular_metricas(y_test, y_pred):
     vp = np.sum((y_pred == 1) & (y_test == 1)) #verdadeiro positivo
     vn = np.sum((y_pred == 0) & (y_test == 0)) #verdadeiro negativo
@@ -84,13 +84,11 @@ def calcular_metricas_regressao(y_test, y_pred, n_atributos):
     # quantas amostras (linhas) de teste
     n_amostras = len(y_test)
 
-    #MAE (Erro Médio Absoluto), a distância absoluta entre a previsão e o valor real
+    #MAE (erro médio absoluto) =distância absoluta entre a previsão e o valor real
     # np.abs tira o sinal de menos, depois tira a media de todos os erros
     mae = np.mean(np.abs(y_test - y_pred))
 
-    #r²: coeficiente de determinação
-
-    #acham a média real dos dados
+    #acha a média real dos dados
     media_real = np.mean(y_test)
 
     # soma dos erros quadrados = o quanto o modelo errou
@@ -99,6 +97,7 @@ def calcular_metricas_regressao(y_test, y_pred, n_atributos):
     # soma da variação total = o quanto os dados variam em relação a  propria media
     soma_variacao_total = np.sum((y_test - media_real) ** 2)
 
+    #r²: coeficiente de determinação
     r2 = 1 - (soma_erros_quadrados / soma_variacao_total)
 
     #r² ajustado: serve para corrigir o r² quando tem muitos atributos
@@ -112,24 +111,36 @@ def calcular_metricas_regressao(y_test, y_pred, n_atributos):
 # avaliar se o modelo generaliza bem: divide o conjunto de dados em K partes iguais, treina com K-1 e testa com 1
 # ver se tem overfitting:quando o algoritmo memorizou os dados de treino mas não funciona bem com informações novas
 # embaralha os dados, cria K partes iguais, treina com K-1 e testa com 1
-def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5):
+def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="classification"):
     # amostras = linhas
     total_amostras = len(X)
+
     #EMBARALHA OS DADOS
     indices_embaralhados = np.random.permutation(total_amostras)
+
     #FATIAR OS DADOS EM K FOLDS
     fatias = np.array_split(indices_embaralhados, k_folds)
 
-    notas_acuracia = []
-    notas_f1 = []
     tempos_treino = []
     tempos_teste = []
-    
+
+    # Listas de notas (separadas pelo if/else)
+    if task == "classification":
+        notas_acuracia = []
+        notas_f1 = []
+    elif task == "regression":
+        notas_mae = []
+        notas_r2 = []
+        # pega a quantidade de colunas (atributos) para o cálculo do R2 Ajustado
+        n_atributos = 1 if X.ndim == 1 else X.shape[1]
+
     #REPETIR PARA CADA FATIA (RODADAS)
     for i in range(k_folds):
-        print("""Rodada %d de %d""" % (i + 1, k_folds))
+        print("Rodada", i + 1, "de", k_folds)
+
         #pega a fatia de teste
         indices_teste = fatias[i]
+
         # cria o bolo de treino (todos menos a fatia de teste)
         indices_treino = []
         for j in range(k_folds):
@@ -142,66 +153,135 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5):
         X_teste = X[indices_teste]
         y_teste = y[indices_teste]
 
-        modelo = KNN(k=k_vizinhos, task="classification", metric=metrica)
+        # passa a task(classificação ou regressão) e a metrica(euclidean ou manhattan) para o modelo knn
+        modelo = KNN(k=k_vizinhos, task=task, metric=metrica)
+
         inicio_treino = time.time() #liga
         modelo.fit(X_treino, y_treino)
         fim_treino = time.time() #desliga
 
-        inicio_teste = time.time() #liga
-        previsoes = modelo.predict(X_teste)
-        fim_teste = time.time() #desliga
+        inicio_teste = time.time()
+        previsoes = modelo.predict(X_teste) #tenta prever
+        fim_teste = time.time()
 
-        acuracia, precisao, recall, f1_score = calcular_metricas(y_teste, previsoes)
-
-        # append = adicionar elemento no final da lista
-        notas_acuracia.append(acuracia)
-        notas_f1.append(f1_score)
+        # append = adicionar a uma lista
         tempos_treino.append(fim_treino - inicio_treino)
         tempos_teste.append(fim_teste - inicio_teste)
 
-        print("Acuracia: %.2f" % acuracia)
+        #metricas
+        if task == "classification":
+            # calcula as metricas da classificação (acuracia, precision, recall, f1)
+            acuracia, precisao, recall, f1 = calcular_metricas(y_teste, previsoes)
+            notas_acuracia.append(acuracia)
+            notas_f1.append(f1)
+            print("Acuracia da rodada:", acuracia)
 
-    # np.mean = média
-    # np.std = desvio padrão
+        elif task == "regression":
+            # calcula as metricas da regressão (MAE, R2, R2 ajustado)
+            mae, r2, r2_ajustado = calcular_metricas_regressao(y_teste, previsoes, n_atributos)
+            notas_mae.append(mae)
+            notas_r2.append(r2)
+            print("MAE da rodada:", mae)
 
-    return {
-        "acuracia_media": np.mean(notas_acuracia),
-        "acuracia_desvio": np.std(notas_acuracia),
-        "f1_medio": np.mean(notas_f1),
-        "f1_desvio": np.std(notas_f1),
+    # np.mean tira a média
+    # np.std tira o desvio padrão
+
+    # tempo = oq eles tem em comim
+    resultados = {
         "tempo_treino_medio": np.mean(tempos_treino),
         "tempo_treino_desvio": np.std(tempos_treino),
         "tempo_teste_medio": np.mean(tempos_teste),
         "tempo_teste_desvio": np.std(tempos_teste)
     }
 
-#= dados treino
-X_train = np.array([[3, 2], [4, 5], [1, 1], [2, 2], [5, 4]])
-y_train = np.array([1, 1, 0, 0, 1])
+    #update = atualizar no dicionário
+    if task == "classification":
+        resultados.update({
+            "acuracia_media": np.mean(notas_acuracia),
+            "acuracia_desvio": np.std(notas_acuracia),
+            "f1_medio": np.mean(notas_f1),
+            "f1_desvio": np.std(notas_f1)
+        })
+    elif task == "regression":
+        resultados.update({
+            "mae_medio": np.mean(notas_mae),
+            "mae_desvio": np.std(notas_mae),
+            "r2_medio": np.mean(notas_r2),
+            "r2_desvio": np.std(notas_r2)
+        })
 
-# dados inventei
-X_test = np.array([[3, 3], [1, 2], [5, 5]])
-y_test = np.array([1, 0, 1]) # 0 = negativo, 1 = positivo
+    return resultados
+
+print("KNN - classificação (COMEÇO)")
+dados_classificacao = np.genfromtxt(r"C:\Users\vivif\OneDrive\Desktop\TrabalhosSillys\SEXTO SEMESTRE\IA\AULA 02\trabalho AV2\gina_prior.csv", delimiter=",")
+print("dados usados para classificação",dados_classificacao)
+
+#pega todas as colunas exceto a ultima (x = todos os atributos, y = classe)
+X_classificacao = dados_classificacao[:, :-1]
+#pega apenas a ultima coluna (y = classe)
+y_classificacao = dados_classificacao[:, -1]
+
+y_classificacao[y_classificacao == -1] = 0
+
+print("KNN - classificação")
+print("linhas", X_classificacao.shape[0]) #shape[0] = retorna os elementos da matriz, nesse caso colunas
+print("colunas", X_classificacao.shape[1]) #shape = retorna os elementos da matriz, nesse caso linhas
+
+#hiperparametros
+k = 5
+folds = 5
 
 print("euclidiana")
-modelo_euclidiano = KNN(k=3, task="classification", metric="euclidean")
-modelo_euclidiano.fit(X_train, y_train)
-previsoes_euclidianas = modelo_euclidiano.predict(X_test)
-
-acuracia_euclidiana, precisao_euclidiana, recall_euclidiana, f1_euclidiana = calcular_metricas(y_test, previsoes_euclidianas)
-
-print("Previsões: ", previsoes_euclidianas)
-print("Acurácia: ", acuracia_euclidiana)
-print("F1-Score: ", f1_euclidiana)
-
+resultados_euclidiana_classificacao = validacao_cruzada(X_classificacao, y_classificacao, k_vizinhos=k, k_folds=folds, task="classification", metrica="euclidean")
+print("Acuracia media: ", resultados_euclidiana_classificacao["acuracia_media"])
+print("F1 media: ", resultados_euclidiana_classificacao["f1_medio"])
+#treino do knn nn faz merda nenhuma ele so guarda os dados, ai da pouco tempo
+print("Tempo de treino medio: ", resultados_euclidiana_classificacao["tempo_treino_medio"])
+#teste do knn demora quanto maior for pq ele vai fazendo os calculos das distancias com os vizinhos, TODOS os vizinhos
+print("Tempo de teste medio: ", resultados_euclidiana_classificacao["tempo_teste_medio"])
 
 print("manhattan")
-modelo_manhattan = KNN(k=3, task="classification", metric="manhattan")
-modelo_manhattan.fit(X_train, y_train)
-previsoes_manhattan = modelo_manhattan.predict(X_test)
+resultados_manhattan_classificacao = validacao_cruzada(X_classificacao, y_classificacao, k_vizinhos=k, k_folds=folds, task="classification", metrica="manhattan")
+print("Acuracia media: ", resultados_manhattan_classificacao["acuracia_media"])
+print("F1 media: ", resultados_manhattan_classificacao["f1_medio"])
+##treino do knn nn faz merda nenhuma ele so guarda os dados, ai da pouco tempo
+print("Tempo de treino medio: ", resultados_manhattan_classificacao["tempo_treino_medio"])
+#teste do knn demora quanto maior for pq ele vai fazendo os calculos das distancias com os vizinhos, TODOS os vizinhos
+print("Tempo de teste medio: ", resultados_manhattan_classificacao["tempo_teste_medio"])
 
-acuracia_manhattan, precisao_manhattan, recall_manhattan, f1_manhattan = calcular_metricas(y_test, previsoes_manhattan)
+print("KNN - classificação (FIM)")
 
-print("Previsões: ", previsoes_manhattan)
-print("Acurácia: ", acuracia_manhattan)
-print("F1-Score: ", f1_manhattan)
+print("KNN - regressão(COMEEÇO)")
+
+dados_regressao = np.genfromtxt(r"C:\Users\vivif\OneDrive\Desktop\TrabalhosSillys\SEXTO SEMESTRE\IA\AULA 02\trabalho AV2\file16a868cf35f5.csv", delimiter=",", )
+print("dados usados para regressão",dados_regressao)
+
+print("KNN - regressão")
+#pula a primeira coluna e ignora as 3 ultimas
+X_regressao = dados_regressao[:, 1:-3]
+#pega apenas a penultima coluna pq o tempo de execução ta la
+y_regressao = dados_regressao[:, -2]
+
+print("linhas", X_regressao.shape[0]) #shape[0] = retorna os elementos da matriz, nesse caso colunas
+print("colunas", X_regressao.shape[1]) #shape = retorna os elementos da matriz, nesse caso linhas
+
+print("euclidiana")
+resultados_euclidiana_regressao = validacao_cruzada(X_regressao, y_regressao, k_vizinhos=k, k_folds=folds, task="regression", metrica="euclidean")
+#erra o erro medio por 1066 segundos = 17min, baixo
+print("MAE media: ", resultados_euclidiana_regressao["mae_medio"])
+#vai de 0 a 1, aqui foi 0.14 ent ele ta so chutando as coisa a partir de determinado momento
+print("R2 media: ", resultados_euclidiana_regressao["r2_medio"])
+print("Tempo de treino medio: ", resultados_euclidiana_regressao["tempo_treino_medio"])
+print("Tempo de teste medio: ", resultados_euclidiana_regressao["tempo_teste_medio"])
+
+print("manhattan")
+resultados_manhattan_regressao = validacao_cruzada(X_regressao, y_regressao, k_vizinhos=k, k_folds=folds, task="regression", metrica="manhattan")
+#erra o erro medio por 1074 segundos = 18min, baixo
+print("MAE media: ", resultados_manhattan_regressao["mae_medio"])
+#vai de 0 a 1, aqui foi 0.15 ent ele ta so chutando as coisa a partir de determinado momento
+print("R2 media: ", resultados_manhattan_regressao["r2_medio"])
+print("Tempo de treino medio: ", resultados_manhattan_regressao["tempo_treino_medio"])
+print("Tempo de teste medio: ", resultados_manhattan_regressao["tempo_teste_medio"])
+#o knn da regressão teve dificuldade com a previsão dos dados pq os dados poderiam estar muito longese e atrapalhar ele na previsão
+print("KNN - regressão (FIM)")
+
