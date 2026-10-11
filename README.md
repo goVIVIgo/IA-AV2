@@ -36,7 +36,9 @@ Majoritariamente usado para ver se o modelo não decorou as respostas (overfitti
 
 # Conclusões
 - **CLASSIFICAÇÃO**: teve resultados mto bons, 95% em praticamente tudo, foi bem bom
+- **Quando o KNN - CLASSIFICAÇÃO se sairia ruim:** em um dataset com muitas colunas, ele iria quebrar ao calcular as distancias, e em um caso de dados SUPER desbalanceados por causa do voto da maioria ele iria so prever tudo errado tbm
 - **REGRESSÃO**: foi bem ruim (R² foi 15% de 100%  e MAE foi mto alto (quase 18min))
+- **Quando o KNN - REGRESÃO se sairia bem:** com padrões lineares. Se tivese tentando comprar uma casa, o knn de regressão iria encontrar os vizinhos mais proximos e tirar a media de preço deles.
 - Isso "prova" que o KNN tem sensibilidade a escalas de dados, os atributos maiores monopolizam o modelo, prejudicando o KNN em algo que nn fosse linear
 - Sobre o **lazy learning**, os treinos (fit) foram praticamente nulos, por so armazenar na memoria, ai o custo computacinal foi todo para os testes (predict), praticamente confirmando que algoritmos que se baseiam em instancias nn são bons para dar respostas em tempo real com massas de dados mto densas
 
