@@ -1,3 +1,7 @@
+# trabalho de IA AV2 
+# aluna: Maria Eduarda Ricoy (2410454) 
+# responsável por: bayes multivariado  e slides 
+
 import numpy as np
 import time
 # treino do modelo por classe
@@ -27,7 +31,7 @@ def treinar_bayes(X_treino, y_treino):
 
     return classes, np.array(medias), np.array(inversas), np.array(log_dets), np.array(priors)
 
-# previsao dos dadoss de teste
+# previsao dos dados de teste
 def prever_bayes(X_teste, classes, medias, inversas, log_dets, priors):
     resultados = []
     d = X_teste.shape[1]
@@ -49,7 +53,7 @@ def prever_bayes(X_teste, classes, medias, inversas, log_dets, priors):
 
     return np.array(resultados)
 
-# metricas das classificacao
+# metricas da classificacao
 def metricas(y_real, y_pred):
     vp = np.sum((y_real == 1) & (y_pred == 1))
     vn = np.sum((y_real == 0) & (y_pred == 0))
@@ -77,7 +81,7 @@ def validacao_cruzada(X, y, k=5):
     tempos_teste = []
 
     for rodada in range(k):
-        print("Rodada", rodada + 1, "de", k)
+        print("rodada", rodada + 1, "de", k)
 
         teste = folds[rodada]
         treino = np.concatenate([folds[i] for i in range(k) if i != rodada])
@@ -102,8 +106,8 @@ def validacao_cruzada(X, y, k=5):
         recalls.append(recall)
         f1s.append(f1)
 
-        print("Acurácia:", acuracia)
-        print("F1:", f1)
+        print("acurácia:", acuracia)
+        print("f1:", f1)
 
     return {
         "acuracia_media": np.mean(acuracias),
@@ -119,4 +123,27 @@ def validacao_cruzada(X, y, k=5):
         "tempo_teste_medio": np.mean(tempos_teste),
         "tempo_teste_desvio": np.std(tempos_teste)
     }
+
+#pega e carrega o dataset
+dados = np.genfromtxt("gina_prior.csv", delimiter=",")
+
+X = dados[:, :-1]
+y = dados[:, -1]
+
+y[y == -1] = 0
+
+print("bayesiano multivariado - classificação")
+print("linhas:", X.shape[0])
+print("colunas:", X.shape[1])
+
+# botar pra rodar
+resultados = validacao_cruzada(X, y, k=5)
+
+print("\nresultados")
+print("acurácia:", resultados["acuracia_media"], "+/-", resultados["acuracia_desvio"])
+print("precisão:", resultados["precisao_media"], "+/-", resultados["precisao_desvio"])
+print("recall:", resultados["recall_medio"], "+/-", resultados["recall_desvio"])
+print("f1-score:", resultados["f1_medio"], "+/-", resultados["f1_desvio"])
+print("tempo de treino:", resultados["tempo_treino_medio"], "+/-", resultados["tempo_treino_desvio"])
+print("tempo de teste:", resultados["tempo_teste_medio"], "+/-", resultados["tempo_teste_desvio"])
 
