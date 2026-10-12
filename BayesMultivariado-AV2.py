@@ -15,7 +15,7 @@ def treinar_bayes(X_treino, y_treino):
         media = np.mean(dados_classe, axis=0)
         cov = np.cov(dados_classe, rowvar=False)
 
-        #so pra matriz nao dar problema na inversa
+        # so pra matriz nao dar problema na inversa
         cov = cov + np.eye(cov.shape[0]) * 0.001
 
         _, log_det = np.linalg.slogdet(cov)
@@ -62,3 +62,61 @@ def metricas(y_real, y_pred):
     f1 = 2 * precisao * recall / (precisao + recall) if (precisao + recall) > 0 else 0
 
     return acuracia, precisao, recall, f1
+# validacao cruzada em 5 partes
+def validacao_cruzada(X, y, k=5):
+    np.random.seed(42)
+
+    indices = np.random.permutation(len(X))
+    folds = np.array_split(indices, k)
+
+    acuracias = []
+    precisoes = []
+    recalls = []
+    f1s = []
+    tempos_treino = []
+    tempos_teste = []
+
+    for rodada in range(k):
+        print("Rodada", rodada + 1, "de", k)
+
+        teste = folds[rodada]
+        treino = np.concatenate([folds[i] for i in range(k) if i != rodada])
+
+        X_treino = X[treino]
+        y_treino = y[treino]
+        X_teste = X[teste]
+        y_teste = y[teste]
+
+        inicio = time.time()
+        classes, medias, inversas, log_dets, priors = treinar_bayes(X_treino, y_treino)
+        tempos_treino.append(time.time() - inicio)
+
+        inicio = time.time()
+        y_pred = prever_bayes(X_teste, classes, medias, inversas, log_dets, priors)
+        tempos_teste.append(time.time() - inicio)
+
+        acuracia, precisao, recall, f1 = metricas(y_teste, y_pred)
+
+        acuracias.append(acuracia)
+        precisoes.append(precisao)
+        recalls.append(recall)
+        f1s.append(f1)
+
+        print("Acurácia:", acuracia)
+        print("F1:", f1)
+
+    return {
+        "acuracia_media": np.mean(acuracias),
+        "acuracia_desvio": np.std(acuracias),
+        "precisao_media": np.mean(precisoes),
+        "precisao_desvio": np.std(precisoes),
+        "recall_medio": np.mean(recalls),
+        "recall_desvio": np.std(recalls),
+        "f1_medio": np.mean(f1s),
+        "f1_desvio": np.std(f1s),
+        "tempo_treino_medio": np.mean(tempos_treino),
+        "tempo_treino_desvio": np.std(tempos_treino),
+        "tempo_teste_medio": np.mean(tempos_teste),
+        "tempo_teste_desvio": np.std(tempos_teste)
+    }
+
