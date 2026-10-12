@@ -64,7 +64,7 @@ Oq foi calculado:
 - **F1_Score:** equilibrio entre **precisãoe e recall**. Bom para ver se o modelo não esta enviesado e bom para dados desbalanceados
 
 # Naive Bayes - Validação Cruzada (K-Fold)
-Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfitting), ele faz isso separando em as instancias FOLDS e usando cada instancia para treino(K-1) e teste(oq sobrou) pelo menos uma vez
+Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfitting), ele faz isso separando o dataset todo em FOLDS e usando cada parte separada para treino(K-1) e teste(oq sobrou) pelo menos uma vez
 
 - **Classificação (Naive Bayes - Univariado):** acurácia = ~58.9% | f1_score = ~70.4% | treino medio = ~0.02s | teste medio = ~0.027s
 
