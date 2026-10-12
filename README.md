@@ -42,3 +42,33 @@ Majoritariamente usado para ver se o modelo não decorou as respostas (overfitti
 - Isso "prova" que o KNN tem sensibilidade a escalas de dados, os atributos maiores monopolizam o modelo, prejudicando o KNN em algo que nn fosse linear
 - Sobre o **lazy learning**, os treinos (fit) foram praticamente nulos, por so armazenar na memoria, ai o custo computacinal foi todo para os testes (predict), praticamente confirmando que algoritmos que se baseiam em instancias nn são bons para dar respostas em tempo real com massas de dados mto densas
 
+# Algoritmo Naive Bayes - Univariado
+- ele eh um **earger learner (ansioso)**, oq significa que ele ao contrario do KNN, nn so guarda (na memoria) os dados no metodo **fit(treino)**, ele faz o calculo da **prior, da media e da variancia**, construindo o modelo matematico dele no fit msm, e depois descartando as instancias
+- no metodo **predict(teste)**, ele usa a PDF(função de densidade probabilidade), para prever a chance do atributo se encaixar na curva da classe, e usa **log** para **evitar erro de underflow**, E a **previsão** eh feita escolhendo a **classe com a maior pontuação final**
+- muito **naive (estupido)**, ele assume que os **atributos são independentes** entre si na hora de calcular as chances do modelo
+- **Univariado:** assume que os dados seguem uma **curva do sino** (a distribuição normal)
+
+# Datasets (bancos de dados utilizados)
+- **Classificação - Gina Prior:** dataset para reconhecimento de digitos manuscritos (separados em impares e pares). 3468 instâncias e 784 atributos (pixels da imagem).
+
+# Métricas de Avaliação
+**Classificação:** usa matriz de confusão para calcular os erros e acertos das categorias
+- verdadeiros positivos (VP): o modelo previu 1 e era 1
+- verdadeiros negativo (VN): o modelo previu 0 e era 0
+- falso positivo (FP): o modelo previu 1 e era 0
+- falso negativo (FN): o modelo previu 0 e era 1
+  
+Oq foi calculado:
+
+- **Acuracia:** porcentagem total de acertos
+- **F1_Score:** equilibrio entre **precisãoe e recall**. Bom para ver se o modelo não esta enviesado e bom para dados desbalanceados
+
+# Naive Bayes - Validação Cruzada (K-Fold)
+Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfitting), ele faz isso separando em as instancias FOLDS e usando cada instancia para treino(K-1) e teste(oq sobrou) pelo menos uma vez
+
+- **Classificação (Naive Bayes - Univariado):** acurácia = ~58.9% | f1_score = ~70.4% | treino medio = ~0.02s | teste medio = ~0.027s
+
+# Conclusões
+- **Classificação**: não foi bom, a acuracia foi de 58%, e isso acontece por causa de ele ser tão naive, ele assumiu que cada pixel era independente, mas pra formar os digitos os pixels dependiam incondicionalmente uns dos outros, por isso caiu tanto (diferente do KNN que ia pelos mais proximos), e o f1_score foi de 70%, por ele ter sido maior que a acuracia da a entender que ele so saiu chutando os valores mesmo (aqui os valores positivos), então podemos supor que ele no final acabou ficando enviesado.
+- **Quando o Naive Bayes - Univariado se sairia BEM:** com problemas com **atributos** que são realmente **independentes** (ex: diagnosticos de sintomas isolados, analises de spam)
+- Sobre ele ser **eager learner (ansioso)**, seu treino foi super rapido, quase instantaneo (0.02s) ja que eh so calculo simples de media e variancia, e seu teste foi quase instantaneo tbm (0.027s), ja que o modelo aqui não precisa varrer todo o dataset dnv, ele so pega os valores que a formula retornou pra ele (diferente do knn que demorava pra porra de 6s)
