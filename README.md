@@ -92,8 +92,8 @@ Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfittin
 
 ### Tabela Comparativa dos Modelos
 
-| algoritmo | tarefa | métrica principal (acurácia) | tempo de treino (fit) | tempo de teste (predict) |
-| :--- | :--- | :--- | :--- | :--- |
-| **KNN (euclidiana)** | classificação | ~95.4% (acurácia) | ~0.000002s | ~6.5s |
-| **KNN (manhattan)** | classificação | ~94.3% (acurácia) | ~0.000001s | ~6.0s |
-| **Naive Bayes (univariado)** | classificação | ~58.9% (acurácia) | ~0.02s | ~0.027s |
+| Classificador | Acurácia | Precisão | F1-Score | Tempo Treino (s) | Tempo Teste (s) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **K-vizinhos (Dist. Euclidiana)** | 0.96 ± 0.01 | 0.98 ± 0.00 | 0.95 ± 0.01 | 0.00 ± 0.00 | 5.91 ± 0.09 |
+| **K-vizinhos (Dist. Manhattan)** | 0.95 ± 0.01 | 0.98 ± 0.01 | 0.95 ± 0.01 | 0.00 ± 0.00 | 5.58 ± 0.02 |
+| **Bayesiano (Univariado)** | 0.58 ± 0.05 | 0.54 ± 0.03 | 0.70 ± 0.03 | 0.02 ± 0.01 | 0.03 ± 0.00 |
