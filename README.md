@@ -72,3 +72,28 @@ Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfittin
 - **Classificação**: não foi bom, a acuracia foi de 58%, e isso acontece por causa de ele ser tão naive, ele assumiu que cada pixel era independente, mas pra formar os digitos os pixels dependiam incondicionalmente uns dos outros, por isso caiu tanto (diferente do KNN que ia pelos mais proximos), e o f1_score foi de 70%, por ele ter sido maior que a acuracia da a entender que ele so saiu chutando os valores mesmo (aqui os valores positivos), então podemos supor que ele no final acabou ficando enviesado.
 - **Quando o Naive Bayes - Univariado se sairia BEM:** com problemas com **atributos** que são realmente **independentes** (ex: diagnosticos de sintomas isolados, analises de spam)
 - Sobre ele ser **eager learner (ansioso)**, seu treino foi super rapido, quase instantaneo (0.02s) ja que eh so calculo simples de media e variancia, e seu teste foi quase instantaneo tbm (0.027s), ja que o modelo aqui não precisa varrer todo o dataset dnv, ele so pega os valores que a formula retornou pra ele (diferente do knn que demorava pra porra de 6s)
+
+# Comparação Algoritmo de Classificação: KNN vs. Naive Bayes Univariado
+- **KNN (K-Nearest Neighbors):** lazy learner (preguiçoso)
+  - **treino(fit): ~0.000002s.** Não faz contas, apenas armazena a matriz de dados na memória.
+  - **teste(predict): ~6.5s.** Muito lento, pois precisa calcular a distância contra todas as 3468 instâncias
+  - **acurácia (acertos): ~95%** (muito muito bom)
+  - **viés (f1_score): ~95%** (foi equilibrado/bom)
+  - **análise do comportamente do algoritmo:** conseguiu capturar mto bem o formato dos numeros pq ele avalia as proximidades geometricas dos pixels juntinhos
+
+- **Naive Bayes Univariado:** eager learner (ansioso)
+  - **treino(fit): ~0.02s.** Constroi o modelo matematico todinho aqui (media, variancia, prior)
+  - **teste(predict): ~0.027s.** Eh super rapido pq so aplica os valores na equação PDF
+  - **acurácia (acertos): ~58.9%**(HORRÍVEL)
+  - **viés (f1_score): ~70%**, enviesado, chuta mto positivo(1) e por isso erra mto negativo(0)
+  - **análise do comportamente do algoritmo:** falhou miseravelmente pq ele eh mto burro e so assumiu que cada pixel era independente e fds
+
+- **Conclusão;** com isso, podemos deduzir que nn existe algoritmo ruim aqui, existe algoritmo certo para a analise certa, o KNN foi mto bom na acurácia pq as imagens são dados espaciais e o formato importa, ai o calculo da distancia do KNN eh perfeito pra isso, mas ele não foi mto bom no tempo da previsão(teste), JUSTAMENTE por ter que fazer esse calculo da distancia para cada pixel longe pra caralho, ja o Naive Bayes, foi horrivel na acurácia pela suposição besta de que as instancias eram independentes, mas em compensação amassou no tempo geral de execução ele foi mto bom pela caracteristica ansiosa ele de montar as cosia logo e deixar o terreno todo montado so pra chamar funções.
+
+### Tabela Comparativa dos Modelos
+
+| algoritmo | tarefa | métrica principal (acurácia) | tempo de treino (fit) | tempo de teste (predict) |
+| :--- | :--- | :--- | :--- | :--- |
+| **KNN (euclidiana)** | classificação | ~95.4% (acurácia) | ~0.000002s | ~6.5s |
+| **KNN (manhattan)** | classificação | ~94.3% (acurácia) | ~0.000001s | ~6.0s |
+| **Naive Bayes (univariado)** | classificação | ~58.9% (acurácia) | ~0.02s | ~0.027s |
