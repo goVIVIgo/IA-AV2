@@ -131,6 +131,8 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
     if task == "classification":
         notas_acuracia = []
         notas_f1 = []
+        notas_precisao = []
+        notas_recall = []
     elif task == "regression":
         notas_mae = []
         notas_r2 = []
@@ -178,6 +180,8 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
             acuracia, precisao, recall, f1 = calcular_metricas(y_teste, previsoes) #compara as previsoes com as respostas reais
             notas_acuracia.append(acuracia)
             notas_f1.append(f1)
+            notas_precisao.append(precisao)
+            notas_recall.append(recall)
             print("Acuracia da rodada:", acuracia)
 
         elif task == "regression":
@@ -204,7 +208,11 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
             "acuracia_media": np.mean(notas_acuracia),
             "acuracia_desvio": np.std(notas_acuracia),
             "f1_medio": np.mean(notas_f1),
-            "f1_desvio": np.std(notas_f1)
+            "f1_desvio": np.std(notas_f1),
+            "precisao_media": np.mean(notas_precisao),
+            "precisao_desvio": np.std(notas_precisao),
+            "recall_medio": np.mean(notas_recall),
+            "recall_desvio": np.std(notas_recall),
         })
     elif task == "regression":
         resultados.update({
@@ -217,7 +225,7 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
     return resultados
 
 print("KNN - classificação (COMEÇO)")
-dados_classificacao = np.genfromtxt(r"C:\Users\vivif\OneDrive\Desktop\TrabalhosSillys\SEXTO SEMESTRE\IA\AULA 02\trabalho AV2\gina_prior.csv", delimiter=",")
+dados_classificacao = np.genfromtxt("gina_prior.csv", delimiter=",")
 print("dados usados para classificação",dados_classificacao)
 
 #pega todas as colunas exceto a ultima (x = todos os atributos, y = classe)
@@ -241,6 +249,8 @@ resultados_euclidiana_classificacao = validacao_cruzada(X_classificacao, y_class
 print("Acuracia media: ", resultados_euclidiana_classificacao["acuracia_media"])
 #f1 medio de 95%
 print("F1 media: ", resultados_euclidiana_classificacao["f1_medio"])
+print("Precisao media: ", resultados_euclidiana_classificacao["precisao_media"])
+print("Recall medio: ", resultados_euclidiana_classificacao["recall_medio"])
 #treino do knn nn faz merda nenhuma ele so guarda os dados, ai da pouco tempo
 print("Tempo de treino medio: ", resultados_euclidiana_classificacao["tempo_treino_medio"])
 #teste do knn demora quanto maior for pq ele vai fazendo os calculos das distancias com os vizinhos, TODOS os vizinhos
@@ -252,6 +262,8 @@ resultados_manhattan_classificacao = validacao_cruzada(X_classificacao, y_classi
 print("Acuracia media: ", resultados_manhattan_classificacao["acuracia_media"])
 #f1 medio de 93%
 print("F1 media: ", resultados_manhattan_classificacao["f1_medio"])
+print("Precisao media: ", resultados_manhattan_classificacao["precisao_media"])
+print("Recall medio: ", resultados_manhattan_classificacao["recall_medio"])
 ##treino do knn nn faz merda nenhuma ele so guarda os dados, ai da pouco tempo (foi so um segundo)
 print("Tempo de treino medio: ", resultados_manhattan_classificacao["tempo_treino_medio"])
 #teste do knn demora quanto maior for pq ele vai fazendo os calculos das distancias com os vizinhos, TODOS os vizinhos (demorou 6 e pouco)
@@ -262,7 +274,7 @@ print("KNN - classificação (FIM)")
 
 print("KNN - regressão(COMEEÇO)")
 
-dados_regressao = np.genfromtxt(r"C:\Users\vivif\OneDrive\Desktop\TrabalhosSillys\SEXTO SEMESTRE\IA\AULA 02\trabalho AV2\file16a868cf35f5.csv", delimiter=",", )
+dados_regressao = np.genfromtxt("file16a868cf35f5.csv", delimiter=",")
 print("dados usados para regressão",dados_regressao)
 
 print("KNN - regressão")
