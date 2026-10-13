@@ -124,6 +124,7 @@ def validacao_cruzada_nb(X, y, k_folds=5):
 
     notas_acuracia = []
     notas_f1 = []
+    notas_recall = []
     tempos_treino = []
     tempos_teste = []
     #ele roda k vezes (5) e a cada vez ele escolhe um montinho para ser amostra de teste(1/5) e o restante para treino(4/5 = k-1)
@@ -161,19 +162,22 @@ def validacao_cruzada_nb(X, y, k_folds=5):
         acuracia, precisao, recall, f1 = calcular_metricas(y_teste, previsoes) #compara as previsoes com as respostas reais
         notas_acuracia.append(acuracia)
         notas_f1.append(f1)
+        notas_recall.append(recall)
         print("Acuracia da rodada:", acuracia)
 
     #return tira a media de todas as notas para ser justo
     return {
         "acuracia_media": np.mean(notas_acuracia),
         "f1_medio": np.mean(notas_f1),
+        "recall_medio": np.mean(notas_recall),
+        "recall_desvio": np.std(notas_recall),
         "tempo_treino_medio": np.mean(tempos_treino),
         "tempo_teste_medio": np.mean(tempos_teste)
     }
 
 print("Naive Bayes Univariado - Classificação (INICIO)")
 
-dados_classificacao = np.genfromtxt(r"C:\Users\vivif\OneDrive\Desktop\TrabalhosSillys\SEXTO SEMESTRE\IA\AULA 02\trabalho AV2\gina_prior.csv", delimiter=",")
+dados_classificacao = np.genfromtxt("gina_prior.csv", delimiter=",")
 print("dados usados para classificação",dados_classificacao)
 
 #pega todas as colunas exceto a ultima (x = todos os atributos, y = classe)
@@ -196,6 +200,7 @@ print("resultados naive bayes univariado")
 print("Acuracia media: ", resultados_nb["acuracia_media"])
 ##f1 é o equilibrio entre precisão e recall, esse valor mais alto que a acuracia eh pq mto provavelmente ele ta chutando mto positivo e errando os negativso
 print("F1 media: ", resultados_nb["f1_medio"])
+print("Recall medio: ", resultados_nb["recall_medio"])
 #o tempo de treino eh mto rapido tbm pq ele não é um algoritmo complexo e são calculos simples (mediaa, variancia, prior, tudo linear)
 print("Tempo de treino medio: ", resultados_nb["tempo_treino_medio"])
 #o tempo de teste foi quase instantaneo por ele ser eager learner(ansioso), ele constroi o modelo matematico no treino então fica mto rapido
