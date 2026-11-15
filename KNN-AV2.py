@@ -131,6 +131,7 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
     if task == "classification":
         notas_acuracia = []
         notas_f1 = []
+        notas_precisao = []
     elif task == "regression":
         notas_mae = []
         notas_r2 = []
@@ -178,6 +179,7 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
             acuracia, precisao, recall, f1 = calcular_metricas(y_teste, previsoes) #compara as previsoes com as respostas reais
             notas_acuracia.append(acuracia)
             notas_f1.append(f1)
+            notas_precisao.append(precisao)
             print("Acuracia da rodada:", acuracia)
 
         elif task == "regression":
@@ -203,6 +205,8 @@ def validacao_cruzada(X, y, k_vizinhos=5, metrica="euclidean", k_folds=5, task="
         resultados.update({
             "acuracia_media": np.mean(notas_acuracia),
             "acuracia_desvio": np.std(notas_acuracia),
+            "precision_media": np.mean(notas_precisao),
+            "precision_desvio": np.std(notas_precisao),
             "f1_medio": np.mean(notas_f1),
             "f1_desvio": np.std(notas_f1)
         })
@@ -246,6 +250,14 @@ print("Tempo de treino medio: ", resultados_euclidiana_classificacao["tempo_trei
 #teste do knn demora quanto maior for pq ele vai fazendo os calculos das distancias com os vizinhos, TODOS os vizinhos
 print("Tempo de teste medio: ", resultados_euclidiana_classificacao["tempo_teste_medio"])
 
+print("precisão media: ", resultados_euclidiana_classificacao["precision_media"])
+print("acuracia desvio: ", resultados_euclidiana_classificacao["acuracia_desvio"])
+print("precisao desvio: ", resultados_euclidiana_classificacao["precision_desvio"])
+print("f1 desvio: ", resultados_euclidiana_classificacao["f1_desvio"])
+
+print("Tempo de treino desvio: ", resultados_euclidiana_classificacao["tempo_treino_desvio"])
+print("Tempo de teste desvio: ", resultados_euclidiana_classificacao["tempo_teste_desvio"])
+
 print("manhattan")
 resultados_manhattan_classificacao = validacao_cruzada(X_classificacao, y_classificacao, k_vizinhos=k, k_folds=folds, task="classification", metrica="manhattan")
 #acuracia media de 93%
@@ -256,6 +268,14 @@ print("F1 media: ", resultados_manhattan_classificacao["f1_medio"])
 print("Tempo de treino medio: ", resultados_manhattan_classificacao["tempo_treino_medio"])
 #teste do knn demora quanto maior for pq ele vai fazendo os calculos das distancias com os vizinhos, TODOS os vizinhos (demorou 6 e pouco)
 print("Tempo de teste medio: ", resultados_manhattan_classificacao["tempo_teste_medio"])
+
+print("precisão media: ", resultados_manhattan_classificacao["precision_media"])
+print("acuracia desvio: ", resultados_manhattan_classificacao["acuracia_desvio"])
+print("precisao desvio: ", resultados_manhattan_classificacao["precision_desvio"])
+print("f1 desvio: ", resultados_manhattan_classificacao["f1_desvio"])
+
+print("Tempo de treino desvio: ", resultados_manhattan_classificacao["tempo_treino_desvio"])
+print("Tempo de teste desvio: ", resultados_manhattan_classificacao["tempo_teste_desvio"])
 
 #o knn da clasificação foi mto bem pq ele estava analisando pixels, que são super proximos(vizinhos), então foi mto facil pra ele prever e fazer o voto majoritario
 print("KNN - classificação (FIM)")

@@ -124,6 +124,7 @@ def validacao_cruzada_nb(X, y, k_folds=5):
 
     notas_acuracia = []
     notas_f1 = []
+    notas_precisao = []
     tempos_treino = []
     tempos_teste = []
     #ele roda k vezes (5) e a cada vez ele escolhe um montinho para ser amostra de teste(1/5) e o restante para treino(4/5 = k-1)
@@ -161,14 +162,22 @@ def validacao_cruzada_nb(X, y, k_folds=5):
         acuracia, precisao, recall, f1 = calcular_metricas(y_teste, previsoes) #compara as previsoes com as respostas reais
         notas_acuracia.append(acuracia)
         notas_f1.append(f1)
+        notas_precisao.append(precisao)
         print("Acuracia da rodada:", acuracia)
 
     #return tira a media de todas as notas para ser justo
     return {
         "acuracia_media": np.mean(notas_acuracia),
+        "acuracia_desvio": np.std(notas_acuracia),
+        "precisao_media": np.mean(notas_precisao),
+        "precisao_desvio": np.std(notas_precisao),
+        "recall_media": np.mean(recall),
         "f1_medio": np.mean(notas_f1),
+        "f1_desvio": np.std(notas_f1),
         "tempo_treino_medio": np.mean(tempos_treino),
-        "tempo_teste_medio": np.mean(tempos_teste)
+        "tempo_treino_desvio": np.std(tempos_treino),
+        "tempo_teste_medio": np.mean(tempos_teste),
+        "tempo_teste_desvio": np.std(tempos_teste)
     }
 
 print("Naive Bayes Univariado - Classificação (INICIO)")
@@ -200,6 +209,14 @@ print("F1 media: ", resultados_nb["f1_medio"])
 print("Tempo de treino medio: ", resultados_nb["tempo_treino_medio"])
 #o tempo de teste foi quase instantaneo por ele ser eager learner(ansioso), ele constroi o modelo matematico no treino então fica mto rapido
 print("Tempo de teste medio: ", resultados_nb["tempo_teste_medio"])
+
+print("precisão media: ", resultados_nb["precisao_media"])
+print("acuracia desvio: ", resultados_nb["acuracia_desvio"])
+print("precisao desvio: ", resultados_nb["precisao_desvio"])
+print("f1 desvio: ", resultados_nb["f1_desvio"])
+
+print("Tempo de treino desvio: ", resultados_nb["tempo_treino_desvio"])
+print("Tempo de teste desvio: ", resultados_nb["tempo_teste_desvio"])
 
 #o naive bayes teve dificuldade na classificação pois ele eh tão naive e ignora os dados dependentes uns dos outros, no caso estamos trabalhando com pixels oq serio crucial dele fazer.
 print("Naive Bayes Univariado - Classificação (FIM)")
