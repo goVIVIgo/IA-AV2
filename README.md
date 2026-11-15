@@ -73,7 +73,53 @@ Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfittin
 - **Quando o Naive Bayes - Univariado se sairia BEM:** com problemas com **atributos** que são realmente **independentes** (ex: diagnosticos de sintomas isolados, analises de spam)
 - Sobre ele ser **eager learner (ansioso)**, seu treino foi super rapido, quase instantaneo (0.02s) ja que eh so calculo simples de media e variancia, e seu teste foi quase instantaneo tbm (0.027s), ja que o modelo aqui não precisa varrer todo o dataset dnv, ele so pega os valores que a formula retornou pra ele (diferente do knn que demorava pra porra de 6s)
 
-# Comparação Algoritmo de Classificação: KNN vs. Naive Bayes Univariado
+# Algoritmo Perceptron Simples
+
+- tenta traçar uma reta (hiperplano) para separar perfeitamente os dados da classe 0 e os dados da classe 1
+- eh earger learner, ou seja, ele faz os calculos tudo no fit, ajustadno os pesos e as taxas tudo bonitinho e depois descarta os dados originais para ir para o predict dele que eh bemm rapidinho pq ele praticamente so compara com a reta traçada no fit
+- **treino (fit):** faz os calculos para ajustar a reta
+  - inicia os pesos e os bias zerados ou aleatórios
+  - roda o dataset todo no numero de epocas definidas (100 epocas = roda 100 vezes)
+  - calcula a equação da reta: multiplica os pixels do dataset pelos pesos (np.dot) e soma os bias
+  - passa o resultado da equação da reta pela função degrau (função de ativação) se for maior que zero = classe 1, se for negativo = classse 0
+  - compara com o valor real do modelo, se ele errar usa a taxa de aprendizado multiplicada pelo erro para atualizar os pesos e dar uns puxões na reta pra direção certa, e atualiza os pesos e os bias tbm
+  - no final vamos ter os pesos e os bias finais, e a reta que vamos passar no predict
+- **teste (predict):** usa a reta pronta ja ajustada
+  - pega as imagens novas que ele nunca viu na vida, multiplica pelos pesos finais e multiplica pelos bias finais tbm
+  - passa pela função de ativação (função degrau) so para ver se eh classe 0 ou classe 1
+  - eh bem rapidinho por nn fazer quase nenhum cálculo, a reta ja esta la e ele usa ela.
+- **hiperparametros:**
+  - **epocas:** quantas vezes ele vai rodar o dataset do começo ao fim fazendo calculos la para ajustar a reta. Poucas epocas causam underfitting (nn da tempo de terminar de ajustara reta), e mtas epocas causam alto gasto computacional desnecessario, pq elas ficam gastando "voltas" no dataset quando tudo ja ta perfeitamente ajustado
+  - **taxa de aprendizado:** são os puxões que vão ser dados na reta para deixar ela ajustadinha bonitinha, eh calculado multiplicando a taxa pelo erro. Se a taxa for mto baixa, vão ser passos curtos e demorados, porém eh mais seguro de testar assim, se for mto grande pode ser instável, deixando a reta torta, acaba nn sendo mto ideal.
+
+# Métricas de Avaliação
+**Classificação:** usa matriz de confusão para calcular os erros e acertos das categorias
+- verdadeiros positivos (VP): o modelo previu 1 e era 1
+- verdadeiros negativo (VN): o modelo previu 0 e era 0
+- falso positivo (FP): o modelo previu 1 e era 0 (deu alarme falso)
+- falso negativo (FN): o modelo previu 0 e era 1 (deixou passar batido)
+
+Oq foi calculado:
+
+- **acuracia:** porcentagem total de acertos gerais do modelo
+- **precisão:** dos que o modelo "chutou" que era classe 1 (VP + FP), quantos eram classe 1 de verdade (VP)
+- **recall (sensibilidade):** dos que eram classe 1 de verdade (VP + FN), quantos o modelo conseguiu encontrar e acertar (VP)
+- **especificidade:** dos que eram classe 0 de verdade no gabarito (VN + FP), quantos o modelo encontrou e acertou (VN)
+- **F1_Score:** equilíbrio entre precisão e recall. Bom para ver se o modelo não está enviesado (se ele tiver recall alto mas precisão lixo, o F1 cai)
+
+# Perceptron - Validação Cruzada (K-Fold)
+Foi usada a melhor configuração achada nos testes (taxa de aprendizado = 0.01 e epocas = 100):
+- **Classificação (Perceptron Simples):** acurácia = ~82.7% | f1_score = ~83.8% | precisão = ~83.2% | recall = ~81.7% | especificidade = ~82.2% | treino médio = ~1.08s | teste médio = ~0.0002s
+
+# Conclusões
+- **Classsificação:** teve um resultado bom/intermediário/mais pra la do que pra ca.
+  - o Perceptron foi mto mto melhor do que o naive bayes justamente por ele não ser "naive", ele nn assumiu independencia condiciona. Ele analisou o peso de todos os pixels juntinhos na msm equação pra traçar a reta
+  - porém ele nn conseguiu ser melhor que o KNN, mto provavelmente pq os desenhos dos pixels do dayaset gina prior não são perfeitamente separáveis por uma linha reta, o knn avalia a distancia e os vizinhos, por ser um dataset de pixels mto provavelmente ele se saiu melhor por isso.
+- **quando o perceptron simples de sairia BEM:** quando o **dataset fosse 100% linearmene separável**, passando uma reta que separe os dados perfeitamente em dois lados, se fosse identificação de letras em preto e branco nos pixels, identificação de spam em emails (sim e não) e em portas lógicas simples, AND, OR, NAND E NOR
+- **comparando hiperparâmetros (testes 1 a 5):** comprovamos que taxa alta + poucas épocas (teste 4) eh mto ruim para o modelo (acurácia caiu pra 76%) e que colocar 1000 epocas (teste 5)e uma taxa de aprendizado instável (0.5), so faz o treino demorar 10x mais (10s) para travar em 80%, tem que ir equilibrando tudo bem direitinho (teste 1)
+- **earger learner (ansioso) vs lazy learner (preguiçoso):** como ele treinou os pesos e os bias no fit, quando chegou no predict com a reta ajustada foi quase instantaneo, nesse quesito ele foir realmente melhor que o knn, que demorava mto no predict por apenas armazenar os dados em memória no fit dele.
+
+# Comparação Algoritmo de Classificação: KNN vs. Naive Bayes Univariado vs. Perceptron
 - **KNN (K-Nearest Neighbors):** lazy learner (preguiçoso)
   - **treino(fit): ~0.000002s.** Não faz contas, apenas armazena a matriz de dados na memória.
   - **teste(predict): ~6.5s.** Muito lento, pois precisa calcular a distância contra todas as 3468 instâncias
@@ -88,7 +134,14 @@ Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfittin
   - **viés (f1_score): ~70%**, enviesado, chuta mto positivo(1) e por isso erra mto negativo(0)
   - **análise do comportamente do algoritmo:** falhou miseravelmente pq ele eh mto burro e so assumiu que cada pixel era independente e fds
 
-- **Conclusão;** com isso, podemos deduzir que nn existe algoritmo ruim aqui, existe algoritmo certo para a analise certa, o KNN foi mto bom na acurácia pq as imagens são dados espaciais e o formato importa, ai o calculo da distancia do KNN eh perfeito pra isso, mas ele não foi mto bom no tempo da previsão(teste), JUSTAMENTE por ter que fazer esse calculo da distancia para cada pixel longe pra caralho, ja o Naive Bayes, foi horrivel na acurácia pela suposição besta de que as instancias eram independentes, mas em compensação amassou no tempo geral de execução ele foi mto bom pela caracteristica ansiosa ele de montar as cosia logo e deixar o terreno todo montado so pra chamar funções.
+- **Perceptron Simples**: earger learner (ansioso)
+  - **treino(fit):** ~1.08s. Mais lento que o naive bayes, pois ele roda o dataset inteiro várias vezes (épocas) ajustando os pesos da reta matemática através dos erros
+  - **teste(predict):** ~0.0002s. foi o mais rapido de todos, como a reta já tá pronta, ele só faz uma multiplicação simples e joga na função degrau (função de ativação)
+  - **acurácia (acertos):** ~82.7% (bom/intermediário)
+  - **viés (f1_score):** ~83.8% (equilibrado, não ficou chutando uma classe so de qualquer jeito, dirferente do naive bayes)
+  - **análise do comportamento do algoritmo:** foi mto melhor que o Naive Bayes porque analisou todos os pixels juntos na mesma equação, mas não foi melhor que o KNN porque os desenhos dos números no dataset não são perfeitamente separáveis por uma única linha reta (problema não linear)                                                      
+
+- **Conclusão;** com isso, podemos deduzir que nn existe algoritmo ruim aqui, existe algoritmo certo para a analise certa, o KNN foi mto bom na acurácia pq as imagens são dados espaciais e o formato importa, ai o calculo da distancia do KNN eh perfeito pra isso, mas ele não foi mto bom no tempo da previsão(teste), JUSTAMENTE por ter que fazer esse calculo da distancia para cada pixel longe pra caralho, ja o Naive Bayes, foi horrivel na acurácia pela suposição besta de que as instancias eram independentes, mas em compensação amassou no tempo geral de execução ele foi mto bom pela caracteristica ansiosa ele de montar as cosia logo e deixar o terreno todo montado so pra chamar funções. O Perceptron foi como um perfeito meio termo, não foi tão bom quanto o KNN pela não linearidade do problema, mas sua acurácia foi boa e seu tempo de teste extremamente melhor, e  do naive bayes a gente nem fala pq ele foi humilhado kkkkkk, enfim ele eh um otimo meio termo pq ele eh acurado e rapido.
 
 ### Tabela Comparativa dos Modelos
 
@@ -97,3 +150,4 @@ Uso para ver se o modelo não esta decorando as respostas e cuspindo (overfittin
 | **K-vizinhos (Dist. Euclidiana)** | 0.96 ± 0.01 | 0.98 ± 0.00 | 0.95 ± 0.01 | 0.00 ± 0.00 | 5.91 ± 0.09 |
 | **K-vizinhos (Dist. Manhattan)** | 0.95 ± 0.01 | 0.98 ± 0.01 | 0.95 ± 0.01 | 0.00 ± 0.00 | 5.58 ± 0.02 |
 | **Bayesiano (Univariado)** | 0.58 ± 0.05 | 0.54 ± 0.03 | 0.70 ± 0.03 | 0.02 ± 0.01 | 0.03 ± 0.00 |
+| **Perceptron Simples** | 0.82 ± 0.01  | 0.83 ± 0.02  | 0.83 ± 0.03  | 1.08 ± 0.03 | 0.00 ± 0.00
