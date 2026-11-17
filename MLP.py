@@ -120,7 +120,8 @@ def fatiar(dados, camadas):
     dados = np.random.permutation(dados)  # embarallhado
 
     # separei a ultima fatia pra fazer o predict
-    entradadaoutrafatiapraypred = entradar(dados[:-527])[0]
+    entradadaoutrafatiapraypred = entradar(dados[1581:])[0]
+    y_teste = entradar(dados[1581:])[1]
     # as primeiras 4 fatias sao pro treinamento
     entrada, y = entradar(dados[:1581])
 
@@ -133,9 +134,10 @@ def fatiar(dados, camadas):
     y_pre = modelo.predict(entradadaoutrafatiapraypred)
     metricas.append(time.time()-tempoantes)
 
-    metricas.append(r2_score(y, y_pre))
-    metricas.append(MAE(y, y_pre))
-    metricas.append(RMSE(y, y_pre))
+    metricas.append(r2_score(y_teste, y_pre))
+    metricas.append(MAE(y_teste, y_pre))
+    metricas.append(RMSE(y_teste, y_pre))
+    metricas.append(MSE(y_teste, y_pre))
 
     return metricas
 
@@ -149,8 +151,10 @@ def MAE(y_true, y_pred):
 
 
 def RMSE(y_true, y_pred):
-    return (1/(y_pred.shape[0]) * np.sum((y_true - y_pred)*2))**0.5
+    return np.sqrt(np.mean((y_true - y_pred)**2))
 
+def MSE(y_true, y_pred):
+    return np.mean((y_true - y_pred)**2)
 
 def memetricar(camadas):
 
@@ -166,8 +170,8 @@ def memetricar(camadas):
     print("media R2:", np.mean(memetricas[:, 2]))
     print("media MAE:", np.mean(memetricas[:, 3]))
     print("rmse: ", np.mean(memetricas[:, 4]))
-    print("mse: ", np.mean(memetricas[:, 4])**2)
-    print("media R2:", 1-((1-np.mean(memetricas[:, 2]))*(2108-1)/(2108-23-1)))
+    print("mse: ", np.mean(memetricas[:, 5]))
+    print("media R2 ajustado:", 1-((1-np.mean(memetricas[:, 2]))*(527-1)/(527-23-1)))
 
 
 memetricar([5, 5, 5])
