@@ -164,7 +164,7 @@ def validacao_cruzada_perceptron(X, y, taxa_aprendizado, epocas, k_folds=5):
         tempos_teste.append(fim_teste - inicio_teste)
 
         # compara as previsoes com as respostas reais para puxar acuracia, matriz e as outras metricas
-        acuracia, precisao, recall, especificidade, f1, matriz = calcular_metricas(y_teste, previsoes)
+        acuracia, precisao, recall, f1, especificidade, matriz = calcular_metricas(y_teste, previsoes)
 
         notas_acuracia.append(acuracia)
         notas_precisao.append(precisao)
@@ -202,7 +202,7 @@ def validacao_cruzada_perceptron(X, y, taxa_aprendizado, epocas, k_folds=5):
 
 print("Perceptron Simples - Classificação (INICIO)")
 
-dados_classificacao = np.genfromtxt(r"C:\Users\vivif\OneDrive\Desktop\TrabalhosSillys\SEXTO SEMESTRE\IA\AULA 02\trabalho AV2\gina_prior.csv", delimiter=",")
+dados_classificacao = np.genfromtxt("gina_prior.csv", delimiter=",")
 print("dados usados para classificação\n", dados_classificacao)
 
 #pega todas as colunas exceto a ultima (x = todos os atributos, y = classe)
