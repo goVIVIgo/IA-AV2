@@ -135,6 +135,7 @@ def fatiar(dados, camadas):
 
     metricas.append(r2_score(y, y_pre))
     metricas.append(MAE(y, y_pre))
+    metricas.append(RMSE(y, y_pre))
 
     return metricas
 
@@ -145,6 +146,10 @@ def r2_score(y_true, y_pred):
 
 def MAE(y_true, y_pred):
     return (1/(y_pred.shape[0]) * np.sum(np.abs(y_true - y_pred)))
+
+
+def RMSE(y_true, y_pred):
+    return (1/(y_pred.shape[0]) * np.sum((y_true - y_pred)*2))**0.5
 
 
 def memetricar(camadas):
@@ -160,6 +165,9 @@ def memetricar(camadas):
     print("media tempo de predicao:", np.mean(memetricas[:, 1]))
     print("media R2:", np.mean(memetricas[:, 2]))
     print("media MAE:", np.mean(memetricas[:, 3]))
+    print("rmse: ", np.mean(memetricas[:, 4]))
+    print("mse: ", np.mean(memetricas[:, 4])**2)
+    print("media R2:", 1-((1-np.mean(memetricas[:, 2]))*(2108-1)/(2108-23-1)))
 
 
 memetricar([5, 5, 5])
